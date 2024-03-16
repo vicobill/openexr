@@ -1,0 +1,108 @@
+[submodule "vendor/file"]
+	path = vendor/file
+	url = https://github.com/file/file.git
+[submodule "vendor/dirent-win"]
+	path = vendor/dirent-win
+	url = https://github.com/tronkko/dirent.git
+[submodule "vendor/getopt-win"]
+	path = vendor/getopt-win
+	url = https://github.com/skandhurkat/Getopt-for-Visual-Studio.git
+[submodule "vendor/pcre2"]
+  path = vendor/pcre2
+  url = https://github.com/PCRE2Project/pcre2
+[submodule "vendor/ImageMagick"]
+	path = vendor/ImageMagick
+	url = https://github.com/ImageMagick/ImageMagick.git
+[submodule "vendor/libvips"]
+  path = vendor/libvips
+	url = https://github.com/libvips/libvips.git
+[submodule "vendor/openexr"]
+  path = vendor/openexr
+  url = https://github.com/AcademySoftwareFoundation/openexr.git
+[submodule "vendor/zlib"]
+	path = vendor/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "vendor/libdeflate"]
+	path = vendor/libdeflate
+	url = https://github.com/ebiggers/libdeflate.git
+[submodule "vendor/brotli"]
+	path = vendor/brotli
+	url = https://github.com/google/brotli.git
+[submodule "vendor/cairo"]
+	path = vendor/cairo
+	url = git://anongit.freedesktop.org/git/cairo.git
+[submodule "vendor/pixman"]
+	path = vendor/pixman
+	url = git://anongit.freedesktop.org/git/pixman.git
+[submodule "vendor/fontconfig"]
+	path = vendor/fontconfig
+	url = https://gitlab.freedesktop.org/fontconfig/fontconfig.git
+[submodule "vendor/freetype"]
+	path = vendor/freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype.git
+[submodule "vendor/uchardet"]
+	path = vendor/uchardet
+	url = https://gitlab.freedesktop.org/uchardet/uchardet.git
+[submodule "vendor/Imath"]
+	path = vendor/Imath
+	url = https://github.com/AcademySoftwareFoundation/Imath.git
+[submodule "vendor/libRaw"]
+	path = vendor/libRaw
+	url = https://github.com/LibRaw/LibRaw.git
+[submodule "vendor/jasper"]
+	path = vendor/jasper
+	url = https://github.com/jasper-software/jasper.git
+[submodule "vendor/libaom"]
+	path = vendor/libaom
+	url = https://github.com/darkskygit/libaom.git
+[submodule "vendor/libheif"]
+	path = vendor/libheif
+	url = https://github.com/strukturag/libheif.git
+[submodule "vendor/libjpeg-turbo"]
+	path = vendor/libjpeg-turbo
+	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
+[submodule "vendor/libjxl"]
+	path = vendor/libjxl
+	url = https://github.com/libjxl/libjxl.git
+[submodule "vendor/libpng"]
+	path = vendor/libpng
+	url = https://github.com/pnggroup/libpng.git
+[submodule "vendor/libtiff"]
+	path = vendor/libtiff
+	url = https://gitlab.com/libtiff/libtiff.git
+[submodule "vendor/libwebp"]
+	path = vendor/libwebp
+	url = https://github.com/webmproject/libwebp.git
+[submodule "vendor/libxml2"]
+	path = vendor/libxml2
+	url = https://github.com/GNOME/libxml2.git
+[submodule "vendor/minizip-ng"]
+	path = vendor/minizip-ng
+	url = https://github.com/zlib-ng/minizip-ng.git
+[submodule "vendor/zlib-ng"]
+	path = vendor/zlib-ng
+	url = https://github.com/zlib-ng/zlib-ng.git
+[submodule "vendor/openjpeg"]
+	path = vendor/openjpeg
+	url = https://github.com/uclouvain/openjpeg.git
+[submodule "vendor/openexr"]
+	path = vendor/openexr
+	url = https://github.com/AcademySoftwareFoundation/openexr.git
+[submodule "vendor/OpenColorIO"]
+	path = vendor/OpenColorIO
+	url = https://github.com/AcademySoftwareFoundation/OpenColorIO.git
+[submodule "vendor/MaterialX"]
+	path = vendor/MaterialX
+	url = https://github.com/AcademySoftwareFoundation/MaterialX.git
+[submodule "vendor/OpenImageIO"]
+	path = vendor/OpenImageIO
+	url = https://github.com/AcademySoftwareFoundation/OpenImageIO.git
+[submodule "vendor/OpenRV"]
+	path = vendor/OpenRV
+	url = https://github.com/AcademySoftwareFoundation/OpenRV.git
+[submodule "vendor/openfx"]
+	path = vendor/openfx
+	url = https://github.com/AcademySoftwareFoundation/openfx.git
+[submodule "vendor/openvdb"]
+	path = vendor/openvdb
+	url = https://github.com/AcademySoftwareFoundation/openvdb.git

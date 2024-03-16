@@ -1,0 +1,174 @@
+# ============ 构建 file ================={{
+set(FILE_VERSION 5.45)
+set(PACKAGE_VERSION ${FILE_VERSION})
+set(WIN_COMPAT_SOURCES
+    file/src/asctime_r.c
+    file/src/asprintf.c
+    file/src/ctime_r.c
+    file/src/dprintf.c
+    file/src/getline.c
+    file/src/gmtime_r.c
+    file/src/localtime_r.c
+    file/src/pread.c
+    file/src/strcasestr.c
+    file/src/strlcat.c
+    file/src/strlcpy.c
+    file/src/vasprintf.c
+    file/src/fmtcheck.c
+)
+set(LIBMAGIC_SOURCE_FILES
+    ${WIN_COMPAT_SOURCES}
+    file/src/apprentice.c
+    file/src/apptype.c
+    file/src/ascmagic.c
+    file/src/buffer.c
+    file/src/cdf.c
+    file/src/cdf_time.c
+    file/src/compress.c
+    file/src/der.c
+    file/src/encoding.c
+    file/src/fsmagic.c
+    file/src/funcs.c
+    file/src/is_json.c
+    file/src/is_tar.c
+    ${CMAKE_CURRENT_BINARY_DIR}/magic.c # 自定义的2个文件
+    file/src/print.c
+    file/src/readcdf.c
+    ${CMAKE_CURRENT_BINARY_DIR}/readelf.c
+    file/src/softmagic.c
+    file/src/is_csv.c
+)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/src/config.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/file/src/config.h
+  @ONLY)
+
+# replace the version in the magic.h.in and write it to magic.h
+# 写入版本信息到 magic.h 文件中
+file(READ file/src/magic.h.in MAGIC_H_CONTENT)
+string(REPLACE "." "" FILE_VERSION_WITHOUT_DOT "${FILE_VERSION}")
+string(REPLACE "X.YY" ${FILE_VERSION_WITHOUT_DOT} MAGIC_H_CONTENT_NEW "${MAGIC_H_CONTENT}")
+file(WRITE file/src/magic.h "${MAGIC_H_CONTENT_NEW}")
+
+if(WIN32)
+    # 自定义文件
+    file(READ file/src/readelf.c READELF_C_CONTENT)
+    string(CONCAT READELF_C_CONTENT_NEW "#include <dirent.h>\n" "${READELF_C_CONTENT}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/readelf.c "${READELF_C_CONTENT_NEW}")
+
+    file(READ file/src/magic.c MAGIC_C_CONTENT)
+    string(CONCAT MAGIC_C_CONTENT_NEW "#include <dirent.h>\n" "${MAGIC_C_CONTENT}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/magic.c "${MAGIC_C_CONTENT_NEW}")
+
+    file(READ file/src/file.h FILE_H_CONTENT)
+    string(CONCAT FILE_H_CONTENT_NEW
+                  "#ifdef WIN32\n#include <unistd.h>\n#include <dirent.h>\n#undef S_IFLNK\n#undef S_IFSOCK\n#endif\n"
+                  "${FILE_H_CONTENT}"
+    )
+    file(WRITE file/src/file.h "${FILE_H_CONTENT_NEW}")
+
+    # patch test.c and include <getopt.h>
+    file(READ file/tests/test.c TEST_C_CONTENT)
+    string(CONCAT TEST_C_CONTENT_NEW "#include <getopt.h>\n" "${TEST_C_CONTENT}")
+    file(WRITE file/tests/test.c "${TEST_C_CONTENT_NEW}")
+else()
+  configure_file(file/src/magic.c ${CMAKE_CURRENT_BINARY_DIR}/magic.c COPYONLY)
+  configure_file(file/src/readelf.c ${CMAKE_CURRENT_BINARY_DIR}/readelf.c COPYONLY)
+endif()
+
+if(IOS)
+  add_library(libmagic STATIC ${LIBMAGIC_SOURCE_FILES})
+else()
+  add_library(libmagic SHARED ${LIBMAGIC_SOURCE_FILES})
+endif()
+
+target_compile_definitions(libmagic PRIVATE HAVE_CONFIG_H VERSION="${FILE_VERSION}" PCRE2_STATIC)
+target_include_directories(
+    libmagic
+    PRIVATE pcre2/src
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src
+    PUBLIC file/src
+    # getopt
+)
+
+add_subdirectory(pcre2)
+
+target_link_libraries(libmagic pcre2-posix)
+if(WIN32)
+    target_compile_definitions(libmagic INTERFACE WIN32_LEAN_AND_MEAN WIN32)
+    target_include_directories(libmagic PRIVATE ${R}/file-windows/win-headers dirent/include)
+    target_link_libraries(libmagic shlwapi)
+endif()
+
+# copy /pcre2posix.h to regex.h so it can be used as posix regex libary
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src/pcre2posix.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src/regex.h
+    COPYONLY
+)
+
+add_executable(file file/src/file.c)
+add_executable(file_test file/tests/test.c)
+target_link_libraries(file libmagic pcre2-posix)
+target_link_libraries(file_test libmagic pcre2-posix)
+if(WIN32)
+    target_link_libraries(file shwapi)
+    target_link_libraries(file_test shwapi)
+
+    target_include_directories(file PRIVATE file/src getopt PRIVATE ${R}/file-windows/win-headers dirent/include)
+    target_include_directories(file_test PRIVATE file/src getopt PRIVATE ${R}/file-windows/win-headers dirent/include)
+endif()
+
+# this tests all because of time-zone or crlf errors
+set(DISABLED_TESTS
+    gedcom
+    fit-map-data
+    regex-eol
+    # it seems like the detection of multiple files is not working
+    # to be tested after pcre update
+    multiple
+)
+
+enable_testing()
+file(GLOB TESTFILES "file/tests/*.testfile")
+foreach(TEST_FILE ${TESTFILES})
+    # extract testname from path and generate command
+    string(REGEX MATCH "(.*)\.testfile" TESTPATH ${TEST_FILE})
+    set(TESTPATH ${CMAKE_MATCH_1})
+    string(REGEX MATCH "([a-zA-Z0-9_]|-|\\.)+$" TESTNAME ${TESTPATH})
+    if(NOT ${TESTNAME} IN_LIST DISABLED_TESTS)
+        add_test(NAME ${TESTNAME} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/file_test ${TEST_FILE} ${TESTPATH}.result)
+    endif()
+endforeach()
+
+## 生成magic.mgc文件
+# Following is the compilation of the magic file
+set(MAGIC_FRAGMENT_DIR file/magic/Magdir)
+file(GLOB MAGIC_FRAGMENTS ${MAGIC_FRAGMENT_DIR}/*)
+
+# Prepare a temporary file to "cat" to:
+file(WRITE magic.in "")
+
+# Call the "cat" function for each input file
+foreach(MAGIC_FRAGMENT ${MAGIC_FRAGMENTS})
+    cat(${MAGIC_FRAGMENT} magic.in)
+endforeach()
+
+# Copy the temporary file to the final location
+configure_file(magic.in magic COPYONLY)
+
+add_custom_command(
+    OUTPUT magic.mgc
+    COMMAND file -C -m magic
+    DEPENDS file
+    COMMENT "Compiling magic file"
+)
+
+add_custom_target(magic_mgc ALL DEPENDS magic.mgc)
+
+set_target_properties(file file_test PROPERTIES FOLDER libmagic/tests)
+set_target_properties(libmagic PROPERTIES FOLDER libmagic)
+
+# ======================================}}
+unset(PACKAGE_VERSION)

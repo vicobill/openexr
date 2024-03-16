@@ -1,0 +1,27 @@
+# http://EditorConfig.org
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+
+[*.{hpp,cpp,h,c,hxx,cxx,cc}]
+indent_style = tab
+indent_size = 4
+indent_style = space
+
+[*.{as}]
+indent_style = tab
+indent_size = 4
+
+[*.{sh,yml}]
+indent_size = 2
+indent_style = space
+tab_width = 2
+
+[*.{py}]
+indent_size = 4
+indent_style = tab
+tab_width = 4
