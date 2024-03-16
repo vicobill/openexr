@@ -137,10 +137,10 @@ configure_file(
     COPYONLY
 )
 
-add_executable(file file/src/file.c)
-add_executable(file_test ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c)
-target_link_libraries(file ${MAGIC_LIB_NAME}-static pcre2-posix)
-target_link_libraries(file_test ${MAGIC_LIB_NAME}-static pcre2-posix)
+add_executable(file             file/src/file.c)
+add_executable(file_test        ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c)
+target_link_libraries(file      ${MAGIC_LIB_NAME} pcre2-posix)
+target_link_libraries(file_test ${MAGIC_LIB_NAME} pcre2-posix)
 
 if(WIN32)
     target_link_libraries(file      shlwapi)
