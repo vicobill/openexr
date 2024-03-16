@@ -49,8 +49,8 @@
 [submodule "vendor/Imath"]
 	path = vendor/Imath
 	url = https://github.com/AcademySoftwareFoundation/Imath.git
-[submodule "vendor/libRaw"]
-	path = vendor/libRaw
+[submodule "vendor/LibRaw"]
+	path = vendor/LibRaw
 	url = https://github.com/LibRaw/LibRaw.git
 [submodule "vendor/jasper"]
 	path = vendor/jasper
@@ -112,3 +112,12 @@
 [submodule "vendor/bzip2"]
 	path = vendor/bzip2
 	url = https://gitlab.com/bzip2/bzip2.git
+[submodule "vendor/LibRaw-cmake"]
+	path = vendor/LibRaw-cmake
+	url = https://github.com/LibRaw/LibRaw-cmake.git
+[submodule "vendor/jemalloc"]
+	path = vendor/jemalloc
+	url = https://github.com/jemalloc/jemalloc.git
+[submodule "vendor/autotrace"]
+	path = vendor/autotrace
+	url = https://github.com/autotrace/autotrace

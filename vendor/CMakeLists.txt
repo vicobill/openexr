@@ -1,4 +1,4 @@
-# include(./pre-libpng.cmake)
+include(./PREQ_LIB.cmake)
 
 # add_subdirectory(libdeflate)
 # add_subdirectory(openexr)
