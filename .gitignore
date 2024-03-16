@@ -83,3 +83,4 @@ CMakeUserPresets.json
 compile_commands.json
 env.bat
 env.ps1
+vendor/magic.in

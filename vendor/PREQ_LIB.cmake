@@ -45,7 +45,9 @@ macro(PREQ_LIB lib)
         DIRECTORY ${${lib}_DIRECTORY}
         DEFINITION ${lib}_LIB_NAME)
 
+    message(STATUS "-------------------------------------------------")
     cmake_print_variables(${lib}_DIRECTORY  ${lib}_BUILD_DIRECTORY ${lib}_STATIC ${lib}_SHARED)
+    message(STATUS "-------------------------------------------------")
 
     if(NOT PROJECT_IS_TOP_LEVEL)
         #[[

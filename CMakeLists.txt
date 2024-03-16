@@ -21,6 +21,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
 # 设置根目录
 set(R "${CMAKE_SOURCE_DIR}")
 set(R_VENDOR "${CMAKE_SOURCE_DIR}/vendor")
+set(R_EXTRA "${CMAKE_SOURCE_DIR}/extra")
 
 include(bootstrap)
 include(cmake-utils)

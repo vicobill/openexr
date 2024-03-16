@@ -1,6 +1,7 @@
 # ============ 构建 file ================={{
 set(FILE_VERSION 5.45)
-set(PACKAGE_VERSION ${FILE_VERSION})
+
+
 set(WIN_COMPAT_SOURCES
     file/src/asctime_r.c
     file/src/asprintf.c
@@ -15,6 +16,7 @@ set(WIN_COMPAT_SOURCES
     file/src/strlcpy.c
     file/src/vasprintf.c
     file/src/fmtcheck.c
+
 )
 set(LIBMAGIC_SOURCE_FILES
     ${WIN_COMPAT_SOURCES}
@@ -31,74 +33,100 @@ set(LIBMAGIC_SOURCE_FILES
     file/src/funcs.c
     file/src/is_json.c
     file/src/is_tar.c
-    ${CMAKE_CURRENT_BINARY_DIR}/magic.c # 自定义的2个文件
+    file/src/is_csv.c
+    file/src/is_simh.c
     file/src/print.c
     file/src/readcdf.c
-    ${CMAKE_CURRENT_BINARY_DIR}/readelf.c
     file/src/softmagic.c
-    file/src/is_csv.c
+    ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.c # 自定义的2个文件
+    ${CMAKE_CURRENT_BINARY_DIR}/file/src/readelf.c
+
 )
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/file/src/config.h.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/file/src/config.h
-  @ONLY)
 
-# replace the version in the magic.h.in and write it to magic.h
-# 写入版本信息到 magic.h 文件中
-file(READ file/src/magic.h.in MAGIC_H_CONTENT)
-string(REPLACE "." "" FILE_VERSION_WITHOUT_DOT "${FILE_VERSION}")
-string(REPLACE "X.YY" ${FILE_VERSION_WITHOUT_DOT} MAGIC_H_CONTENT_NEW "${MAGIC_H_CONTENT}")
-file(WRITE file/src/magic.h "${MAGIC_H_CONTENT_NEW}")
 
 if(WIN32)
+    set(HAVE_UNISTD_H 1)
+    set(HAVE_GETOPT_H 1)
+    set(HAVE_DIRENT_H 1)
+    # replace the version in the magic.h.in and write it to magic.h
+    # 写入版本信息到 magic.h 文件中
+    file(READ file/src/magic.h.in MAGIC_H_CONTENT)
+    string(REPLACE "." "" FILE_VERSION_WITHOUT_DOT "${FILE_VERSION}")
+    string(REPLACE "X.YY" ${FILE_VERSION_WITHOUT_DOT} MAGIC_H_CONTENT_NEW "${MAGIC_H_CONTENT}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.h "${MAGIC_H_CONTENT_NEW}")
+
     # 自定义文件
     file(READ file/src/readelf.c READELF_C_CONTENT)
     string(CONCAT READELF_C_CONTENT_NEW "#include <dirent.h>\n" "${READELF_C_CONTENT}")
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/readelf.c "${READELF_C_CONTENT_NEW}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/src/readelf.c "${READELF_C_CONTENT_NEW}")
 
     file(READ file/src/magic.c MAGIC_C_CONTENT)
     string(CONCAT MAGIC_C_CONTENT_NEW "#include <dirent.h>\n" "${MAGIC_C_CONTENT}")
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/magic.c "${MAGIC_C_CONTENT_NEW}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.c "${MAGIC_C_CONTENT_NEW}")
 
-    file(READ file/src/file.h FILE_H_CONTENT)
-    string(CONCAT FILE_H_CONTENT_NEW
-                  "#ifdef WIN32\n#include <unistd.h>\n#include <dirent.h>\n#undef S_IFLNK\n#undef S_IFSOCK\n#endif\n"
-                  "${FILE_H_CONTENT}"
-    )
-    file(WRITE file/src/file.h "${FILE_H_CONTENT_NEW}")
+    # WARNING: 比较特殊
+    file(READ file/src/file.h HEADER_CONTENT LIMIT 256 )
+    string(REGEX MATCH  "#undef S_IFLNK" HAS_UNDEFED ${HEADER_CONTENT}  )
+
+    cmake_print_variables(HEADER_CONTENT HAS_UNDEFED)
+    if(NOT HAS_UNDEFED)
+        file(READ file/src/file.h FILE_H_CONTENT)
+
+        string(CONCAT FILE_H_CONTENT_NEW
+                    "#ifdef WIN32\n#include <unistd.h>\n#include <dirent.h>\n#undef S_IFLNK\n#undef S_IFSOCK\n#endif\n"
+                    "${FILE_H_CONTENT}"
+        )
+        file(WRITE file/src/file.h "${FILE_H_CONTENT_NEW}")
+    endif()
 
     # patch test.c and include <getopt.h>
     file(READ file/tests/test.c TEST_C_CONTENT)
     string(CONCAT TEST_C_CONTENT_NEW "#include <getopt.h>\n" "${TEST_C_CONTENT}")
-    file(WRITE file/tests/test.c "${TEST_C_CONTENT_NEW}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c "${TEST_C_CONTENT_NEW}")
 else()
-  configure_file(file/src/magic.c ${CMAKE_CURRENT_BINARY_DIR}/magic.c COPYONLY)
-  configure_file(file/src/readelf.c ${CMAKE_CURRENT_BINARY_DIR}/readelf.c COPYONLY)
+  configure_file(file/src/magic.c   ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.c    COPYONLY)
+  configure_file(file/src/readelf.c ${CMAKE_CURRENT_BINARY_DIR}/file/src/readelf.c  COPYONLY)
+  configure_file(file/tests/test.c  ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c   COPYONLY)
 endif()
 
-if(IOS)
-  add_library(libmagic STATIC ${LIBMAGIC_SOURCE_FILES})
-else()
-  add_library(libmagic SHARED ${LIBMAGIC_SOURCE_FILES})
+# 额外的生成文件
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/magic-config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/file/src/config.h
+  @ONLY)
+
+set(MAGIC_LIB_NAME magic)
+if(WIN32)
+    set(MAGIC_LIB_NAME libmagic)
 endif()
 
-target_compile_definitions(libmagic PRIVATE HAVE_CONFIG_H VERSION="${FILE_VERSION}" PCRE2_STATIC)
-target_include_directories(
-    libmagic
-    PRIVATE pcre2/src
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src
-    PUBLIC file/src
-    # getopt
+add_library(${MAGIC_LIB_NAME} SHARED ${LIBMAGIC_SOURCE_FILES})
+
+# 同时生成 libmagic-static.lib 静态库
+add_library(${MAGIC_LIB_NAME}-static STATIC $<TARGET_OBJECTS:${MAGIC_LIB_NAME}>)
+set_target_properties(${MAGIC_LIB_NAME}-static PROPERTIES OUTPUT_NAME ${MAGIC_LIB_NAME})
+
+target_compile_definitions(${MAGIC_LIB_NAME}
+    PUBLIC HAVE_CONFIG_H VERSION="${FILE_VERSION}" PCRE2_STATIC)
+
+set(MAGIC_INCLUDE_DIRS pcre2/src
+${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src
+file/src
+${CMAKE_CURRENT_BINARY_DIR}/file/src/)
+
+target_include_directories( ${MAGIC_LIB_NAME}
+    PUBLIC ${MAGIC_INCLUDE_DIRS}
 )
 
 add_subdirectory(pcre2)
 
-target_link_libraries(libmagic pcre2-posix)
+target_link_libraries(${MAGIC_LIB_NAME} pcre2-posix)
 if(WIN32)
-    target_compile_definitions(libmagic INTERFACE WIN32_LEAN_AND_MEAN WIN32)
-    target_include_directories(libmagic PRIVATE ${R}/file-windows/win-headers dirent/include)
-    target_link_libraries(libmagic shlwapi)
+    target_compile_definitions(${MAGIC_LIB_NAME} INTERFACE WIN32_LEAN_AND_MEAN WIN32)
+    target_include_directories(${MAGIC_LIB_NAME}
+        PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
+    target_link_libraries(${MAGIC_LIB_NAME} shlwapi)
 endif()
 
 # copy /pcre2posix.h to regex.h so it can be used as posix regex libary
@@ -109,15 +137,18 @@ configure_file(
 )
 
 add_executable(file file/src/file.c)
-add_executable(file_test file/tests/test.c)
-target_link_libraries(file libmagic pcre2-posix)
-target_link_libraries(file_test libmagic pcre2-posix)
-if(WIN32)
-    target_link_libraries(file shwapi)
-    target_link_libraries(file_test shwapi)
+add_executable(file_test ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c)
+target_link_libraries(file ${MAGIC_LIB_NAME}-static pcre2-posix)
+target_link_libraries(file_test ${MAGIC_LIB_NAME}-static pcre2-posix)
 
-    target_include_directories(file PRIVATE file/src getopt PRIVATE ${R}/file-windows/win-headers dirent/include)
-    target_include_directories(file_test PRIVATE file/src getopt PRIVATE ${R}/file-windows/win-headers dirent/include)
+if(WIN32)
+    target_link_libraries(file      shlwapi)
+    target_link_libraries(file_test shlwapi)
+    # 这里的包含目录，隐含了 libmagic-static 的包含目录
+    target_include_directories(file ${MAGIC_INCLUDE_DIRS}
+        PRIVATE PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
+    target_include_directories(file_test ${MAGIC_INCLUDE_DIRS}
+        PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
 endif()
 
 # this tests all because of time-zone or crlf errors
@@ -138,14 +169,15 @@ foreach(TEST_FILE ${TESTFILES})
     set(TESTPATH ${CMAKE_MATCH_1})
     string(REGEX MATCH "([a-zA-Z0-9_]|-|\\.)+$" TESTNAME ${TESTPATH})
     if(NOT ${TESTNAME} IN_LIST DISABLED_TESTS)
-        add_test(NAME ${TESTNAME} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/file_test ${TEST_FILE} ${TESTPATH}.result)
+        add_test(NAME ${TESTNAME}
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/file_test ${TEST_FILE} ${TESTPATH}.result)
     endif()
 endforeach()
 
 ## 生成magic.mgc文件
 # Following is the compilation of the magic file
-set(MAGIC_FRAGMENT_DIR file/magic/Magdir)
-file(GLOB MAGIC_FRAGMENTS ${MAGIC_FRAGMENT_DIR}/*)
+set(MAGIC_FRAGMENT_DIR      file/magic/Magdir)
+file(GLOB MAGIC_FRAGMENTS   ${MAGIC_FRAGMENT_DIR}/*)
 
 # Prepare a temporary file to "cat" to:
 file(WRITE magic.in "")
@@ -168,7 +200,7 @@ add_custom_command(
 add_custom_target(magic_mgc ALL DEPENDS magic.mgc)
 
 set_target_properties(file file_test PROPERTIES FOLDER libmagic/tests)
-set_target_properties(libmagic PROPERTIES FOLDER libmagic)
+set_target_properties(${MAGIC_LIB_NAME} ${MAGIC_LIB_NAME}-static PROPERTIES FOLDER libmagic)
 
 # ======================================}}
-unset(PACKAGE_VERSION)
+

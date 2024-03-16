@@ -216,6 +216,9 @@ check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
 check_symbol_exists(utime "utime.h" HAVE_UTIME)
 if(NOT HAVE_UTIME AND HAVE_SYS_UTIME_H)
   check_symbol_exists(utime "sys/utime.h" HAVE_UTIME)
+  if(WIN32) # win32下，#define utime _utime
+    set(HAVE_UTIME 1)
+  endif()
 endif()
 check_symbol_exists(utimensat "sys/stat.h" HAVE_UTIMENSAT)
 

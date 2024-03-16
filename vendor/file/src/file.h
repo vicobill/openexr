@@ -1,3 +1,10 @@
+
+#ifdef WIN32
+#include <unistd.h>
+#include <dirent.h>
+#undef S_IFLNK
+#undef S_IFSOCK
+#endif
 /*
  * Copyright (c) Ian F. Darwin 1986-1995.
  * Software written by Ian F. Darwin and others;
@@ -85,6 +92,13 @@
 #ifndef WIN32
 #include <sys/param.h>
 #endif
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+#if HAVE_DIRENT_H
+    #include <dirent.h>
+#endif
+
 /* Do this here and now, because struct stat gets re-defined on solaris */
 #include <sys/stat.h>
 #include <stdarg.h>
