@@ -110,7 +110,8 @@ set_target_properties(${MAGIC_LIB_NAME}-static PROPERTIES OUTPUT_NAME ${MAGIC_LI
 target_compile_definitions(${MAGIC_LIB_NAME}
     PUBLIC HAVE_CONFIG_H VERSION="${FILE_VERSION}" PCRE2_STATIC)
 
-set(MAGIC_INCLUDE_DIRS pcre2/src
+set(MAGIC_INCLUDE_DIRS
+pcre2/src
 ${CMAKE_CURRENT_SOURCE_DIR}/pcre2/src
 file/src
 ${CMAKE_CURRENT_BINARY_DIR}/file/src/)
@@ -145,9 +146,11 @@ if(WIN32)
     target_link_libraries(file      shlwapi)
     target_link_libraries(file_test shlwapi)
     # 这里的包含目录，隐含了 libmagic-static 的包含目录
-    target_include_directories(file ${MAGIC_INCLUDE_DIRS}
-        PRIVATE PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
-    target_include_directories(file_test ${MAGIC_INCLUDE_DIRS}
+    target_include_directories(file
+        PUBLIC ${MAGIC_INCLUDE_DIRS}
+        PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
+    target_include_directories(file_test
+        PUBLIC ${MAGIC_INCLUDE_DIRS}
         PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
 endif()
 
