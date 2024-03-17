@@ -122,12 +122,17 @@ target_include_directories( ${MAGIC_LIB_NAME}
 
 add_subdirectory(pcre2)
 
+
 target_link_libraries(${MAGIC_LIB_NAME} pcre2-posix)
 if(WIN32)
     target_compile_definitions(${MAGIC_LIB_NAME} INTERFACE WIN32_LEAN_AND_MEAN WIN32)
     target_include_directories(${MAGIC_LIB_NAME}
         PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
     target_link_libraries(${MAGIC_LIB_NAME} shlwapi)
+    target_include_directories(pcre2test
+        PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
+    target_include_directories(pcre2grep
+        PRIVATE ${R_EXTRA}/file-win ${R_EXTRA}/file-win/dirent/include ${R_EXTRA}/file-win/getopt)
 endif()
 
 # copy /pcre2posix.h to regex.h so it can be used as posix regex libary
@@ -141,7 +146,8 @@ add_executable(file             file/src/file.c)
 add_executable(file_test        ${CMAKE_CURRENT_BINARY_DIR}/file/tests/test.c)
 target_link_libraries(file      ${MAGIC_LIB_NAME} pcre2-posix)
 target_link_libraries(file_test ${MAGIC_LIB_NAME} pcre2-posix)
-
+add_dependencies(file ${MAGIC_LIB_NAME}-static) # 添加依赖项，libmagic-static 会先编译
+add_dependencies(file_test ${MAGIC_LIB_NAME}-static)
 if(WIN32)
     target_link_libraries(file      shlwapi)
     target_link_libraries(file_test shlwapi)

@@ -35,6 +35,10 @@ if(codecov_FOUND)
 endif()
 
 include(FetchContent) # 允许通过FetchContent下载依赖包
+include(CMakePrintHelpers)
+include(get-all-cmake-targets)
+get_all_cmake_targets(all_targets ${CMAKE_CURRENT_LIST_DIR})
+cmake_print_variables(all_targets)
 
 if(ANDROID)
   message(STATUS ${ANDROID_ABI} ${CMAKE_ANDROID_ARCH} ${CMAKE_ANDROID_ARCH_ABI}

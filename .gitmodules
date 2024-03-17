@@ -120,4 +120,4 @@
 	url = https://github.com/jemalloc/jemalloc.git
 [submodule "vendor/autotrace"]
 	path = vendor/autotrace
-	url = https://github.com/autotrace/autotrace
+	url = https://github.com/autotrace/autotrace.git
