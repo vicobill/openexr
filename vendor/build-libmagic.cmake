@@ -69,7 +69,7 @@ if(WIN32)
     file(READ file/src/file.h HEADER_CONTENT LIMIT 256 )
     string(REGEX MATCH  "#undef S_IFLNK" HAS_UNDEFED ${HEADER_CONTENT}  )
 
-    cmake_print_variables(HEADER_CONTENT HAS_UNDEFED)
+    # cmake_print_variables(HEADER_CONTENT HAS_UNDEFED)
     if(NOT HAS_UNDEFED)
         file(READ file/src/file.h FILE_H_CONTENT)
 

@@ -107,7 +107,6 @@ get_directory_property(ZLIB_BUILD_DIRECTORY
     DIRECTORY ${ZLIB_DIRECTORY}
     DEFINITION CMAKE_CURRENT_BINARY_DIR)
 
-
 # not needed, but paranoia for the future.
 get_directory_property(zlib
     DIRECTORY ${ZLIB_DIRECTORY}
@@ -119,42 +118,44 @@ get_directory_property(zlibstatic
     DEFINITION zlibstatic)
 
 if(PNG_LINK_ZLIB_STATIC)
-    set(ZLIB_LIBRARY zlibstatic)
+    set(ZLIB_LIBRARY $<TARGET_LINKER_FILE:zlibstatic>)
 else()
     set(ZLIB_LIBRARY zlib)
 endif()
-set(ZLIB_INCLUDE_DIR ${ZLIB_DIRECTORY})
+set(ZLIB_INCLUDE_DIR ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY})
 
-# ======================================
-# libpng (requiring zlib)
-set(LIBPNG_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/libpng")
+# # ======================================
+# # libpng (requiring zlib)
+# set(LIBPNG_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/libpng")
 
-# libpng needs a hand.
-include_directories(
-    ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY}
-    ${LIBPNG_DIRECTORY} ${LIBPNG_BUILD_DIRECTORY})
+# # libpng needs a hand.
+# include_directories(
+#     ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY}
+#     ${LIBPNG_DIRECTORY} ${LIBPNG_BUILD_DIRECTORY})
 
-add_subdirectory(${LIBPNG_DIRECTORY})
+# add_subdirectory(${LIBPNG_DIRECTORY})
 
-get_directory_property(LIBPNG_BUILD_DIRECTORY
-    DIRECTORY ${LIBPNG_DIRECTORY}
-    DEFINITION CMAKE_CURRENT_BINARY_DIR)
+# get_directory_property(LIBPNG_BUILD_DIRECTORY
+#     DIRECTORY ${LIBPNG_DIRECTORY}
+#     DEFINITION CMAKE_CURRENT_BINARY_DIR)
 
-get_directory_property(LIBPNG_STATIC
-    DIRECTORY ${LIBPNG_DIRECTORY}
-    DEFINITION PNG_LIB_NAME_STATIC)
+# get_directory_property(LIBPNG_STATIC
+#     DIRECTORY ${LIBPNG_DIRECTORY}
+#     DEFINITION PNG_LIB_NAME_STATIC)
 
-get_directory_property(LIBPNG_SHARED
-    DIRECTORY ${LIBPNG_DIRECTORY}
-    DEFINITION PNG_LIB_NAME)
+# get_directory_property(LIBPNG_SHARED
+#     DIRECTORY ${LIBPNG_DIRECTORY}
+#     DEFINITION PNG_LIB_NAME)
 
-set(PNG_LIBRARY $<TARGET_FILE:libpng>)
-set(PNG_PNG_INCLUDE_DIR ${LIBPNG_DIRECTORY})
+# set(PNG_LIBRARY $<TARGET_FILE:${LIBPNG_STATIC}>)
+# set(PNG_PNG_INCLUDE_DIR ${LIBPNG_DIRECTORY})
 
 # ========================
 # openjpeg
 PREQ_LIB(bzip2)
-PREQ_LIB(libtiff)
-set(TIFF_LIBRARY libtiff)
-set(TIFF_INCLUDE_DIR ${LIBTIFF_DIRECTORY}/libtiff)
-PREQ_LIB(openjpeg)
+set(BZIP2_LIBRARY "bz2")
+# PREQ_LIB(libjpeg-turbo)
+# PREQ_LIB(libtiff)
+# set(TIFF_LIBRARY libtiff)
+# set(TIFF_INCLUDE_DIR ${LIBTIFF_DIRECTORY}/libtiff)
+# PREQ_LIB(openjpeg)
