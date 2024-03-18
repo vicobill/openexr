@@ -156,7 +156,7 @@ function(win_copy_deps_to_target_dir target)
         if(dep_type STREQUAL "SHARED_LIBRARY")
             if(NOT has_runtime_dll_genex)
                 add_custom_command(TARGET ${target} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -P "${mylib_SOURCE_DIR}/cmake/silent_copy.cmake" 
+                    COMMAND ${CMAKE_COMMAND} -P "${mylib_SOURCE_DIR}/cmake/silent_copy.cmake"
                         "$<TARGET_FILE:${dep}>" "$<TARGET_PDB_FILE:${dep}>" "$<TARGET_FILE_DIR:${target}>"
                     COMMAND_EXPAND_LISTS)
             else()
@@ -167,4 +167,13 @@ function(win_copy_deps_to_target_dir target)
             endif()
         endif()
     endforeach()
+endfunction()
+
+
+function(is_standalone out_var)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
+    CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
+    CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(out_var 1 PARENT_SCOPE)
+  endif()
 endfunction()

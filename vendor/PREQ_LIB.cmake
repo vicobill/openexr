@@ -152,8 +152,10 @@ set(ZLIB_INCLUDE_DIR ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY})
 
 # ========================
 # openjpeg
+set(ENABLE_LIB_ONLY 1)
 PREQ_LIB(bzip2)
 set(BZIP2_LIBRARY "bz2")
+unset(ENABLE_LIB_ONLY)
 # PREQ_LIB(libjpeg-turbo)
 # PREQ_LIB(libtiff)
 # set(TIFF_LIBRARY libtiff)

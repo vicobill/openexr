@@ -61,7 +61,7 @@ FILE_RCSID("@(#)$File: fsmagic.c,v 1.85 2022/12/26 17:31:14 christos Exp $")
 # include <windows.h>
 #endif
 
-#ifndef HAVE_MAJOR
+#if !defined( HAVE_MAJOR ) || !defined(major)
 # define major(dev)  (((dev) >> 8) & 0xff)
 # define minor(dev)  ((dev) & 0xff)
 #endif

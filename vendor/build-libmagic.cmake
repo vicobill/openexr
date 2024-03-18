@@ -44,17 +44,17 @@ set(LIBMAGIC_SOURCE_FILES
 )
 
 
+# replace the version in the magic.h.in and write it to magic.h
+# 写入版本信息到 magic.h 文件中
+file(READ file/src/magic.h.in MAGIC_H_CONTENT)
+string(REPLACE "." "" FILE_VERSION_WITHOUT_DOT "${FILE_VERSION}")
+string(REPLACE "X.YY" ${FILE_VERSION_WITHOUT_DOT} MAGIC_H_CONTENT_NEW "${MAGIC_H_CONTENT}")
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.h "${MAGIC_H_CONTENT_NEW}")
 
 if(WIN32)
     set(HAVE_UNISTD_H 1)
     set(HAVE_GETOPT_H 1)
     set(HAVE_DIRENT_H 1)
-    # replace the version in the magic.h.in and write it to magic.h
-    # 写入版本信息到 magic.h 文件中
-    file(READ file/src/magic.h.in MAGIC_H_CONTENT)
-    string(REPLACE "." "" FILE_VERSION_WITHOUT_DOT "${FILE_VERSION}")
-    string(REPLACE "X.YY" ${FILE_VERSION_WITHOUT_DOT} MAGIC_H_CONTENT_NEW "${MAGIC_H_CONTENT}")
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/file/src/magic.h "${MAGIC_H_CONTENT_NEW}")
 
     # 自定义文件
     file(READ file/src/readelf.c READELF_C_CONTENT)
@@ -205,9 +205,12 @@ add_custom_command(
     DEPENDS file
     COMMENT "Compiling magic file"
 )
-
-add_custom_target(magic_mgc ALL DEPENDS magic.mgc)
-
+is_standalone(IS_STANDALONE)
+# 非PC下不运行
+if(IS_STANDALONE)
+    add_custom_target(magic_mgc ALL DEPENDS magic.mgc)
+    set_target_properties(magic_mgc PROPERTIES FOLDER libmagic)
+endif()
 set_target_properties(file file_test PROPERTIES FOLDER libmagic/tests)
 set_target_properties(${MAGIC_LIB_NAME} ${MAGIC_LIB_NAME}-static PROPERTIES FOLDER libmagic)
 

@@ -90,7 +90,9 @@
 #include <time.h>
 #include <sys/types.h>
 #ifndef WIN32
+#if HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif
 #endif
 #if HAVE_UNISTD_H
     #include <unistd.h>
@@ -555,7 +557,7 @@ file_protected void file_ms_free(struct magic_set *);
 file_protected int file_default(struct magic_set *, size_t);
 file_protected int file_buffer(struct magic_set *, int, struct stat *,
     const char *, const void *, size_t);
-file_protected int file_fsmagic(struct magic_set *, const char *, 
+file_protected int file_fsmagic(struct magic_set *, const char *,
     struct stat *);
 file_protected int file_pipe2file(struct magic_set *, int, const void *,
     size_t);
