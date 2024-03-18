@@ -1,10 +1,3 @@
-
-#ifdef WIN32
-#include <unistd.h>
-#include <dirent.h>
-#undef S_IFLNK
-#undef S_IFSOCK
-#endif
 /*
  * Copyright (c) Ian F. Darwin 1986-1995.
  * Software written by Ian F. Darwin and others;
@@ -90,17 +83,8 @@
 #include <time.h>
 #include <sys/types.h>
 #ifndef WIN32
-#if HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#endif
-#if HAVE_UNISTD_H
-    #include <unistd.h>
-#endif
-#if HAVE_DIRENT_H
-    #include <dirent.h>
-#endif
-
 /* Do this here and now, because struct stat gets re-defined on solaris */
 #include <sys/stat.h>
 #include <stdarg.h>
@@ -557,7 +541,7 @@ file_protected void file_ms_free(struct magic_set *);
 file_protected int file_default(struct magic_set *, size_t);
 file_protected int file_buffer(struct magic_set *, int, struct stat *,
     const char *, const void *, size_t);
-file_protected int file_fsmagic(struct magic_set *, const char *,
+file_protected int file_fsmagic(struct magic_set *, const char *, 
     struct stat *);
 file_protected int file_pipe2file(struct magic_set *, int, const void *,
     size_t);
