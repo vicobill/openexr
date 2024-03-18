@@ -1,3 +1,9 @@
+#ifdef WIN32
+#include <unistd.h>
+#include <dirent.h>
+#undef S_IFLNK
+#undef S_IFSOCK
+#endif
 /*
  * Copyright (c) Ian F. Darwin 1986-1995.
  * Software written by Ian F. Darwin and others;

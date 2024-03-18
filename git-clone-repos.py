@@ -32,11 +32,19 @@ def work(url,path):
     cmd = git_clone_cmd(url,path)
     subprocess.run(cmd)
 
+    # 设置为源地址
+    cwd = os.getcwd()
+    os.chdir(path)
+    subprocess.run(f"git remote set-url origin {url}")
+    os.chdir(cwd)
+
+
 def update_progress_bar(_):
     progress_bar.update()
 
 def git_clone_cmd(url, path):
-    cmd = f"git clone {url} {path}"
+    proxyurl = url.replace('github.com','githubfast.com')
+    cmd = f"git clone {proxyurl} {path}"
     print(cmd)
     return cmd
 

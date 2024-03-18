@@ -1,4 +1,8 @@
 include(./PREQ_LIB.cmake)
+# include(./build-jemalloc.cmake)
+include(./build-LCMS2.cmake)
+set(LCMS2_LIBRARY LCMS2)
+
 
 # add_subdirectory(libdeflate)
 # add_subdirectory(openexr)
@@ -11,15 +15,13 @@ include(./PREQ_LIB.cmake)
 
 # include(FetchContent)
 
-# FetchContent_Declare(
-#   libjpeg-turbo
-#   GIT_REPOSITORY   https://github.com/libjpeg-turbo/libjpeg-turbo.git
-#   GIT_TAG          3.0.2
-# )
-# FetchContent_MakeAvailable(libjpeg-turbo)
+
 
 # add_subdirectory(zlib-ng)
 # add_subdirectory(minizip-ng)
+
+add_subdirectory(LibRaw-cmake)
+set(RAW_LIBRARY raw)
 
 
 

@@ -121,3 +121,6 @@
 [submodule "vendor/autotrace"]
 	path = vendor/autotrace
 	url = https://github.com/autotrace/autotrace.git
+[submodule "vendor/LCMS2"]
+	path = vendor/LCMS2
+	url = https://github.com/mm2/Little-CMS.git

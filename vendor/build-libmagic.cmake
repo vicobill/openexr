@@ -121,6 +121,7 @@ target_include_directories( ${MAGIC_LIB_NAME}
 )
 
 add_subdirectory(pcre2)
+group_sources_under(pcre2)
 
 
 target_link_libraries(${MAGIC_LIB_NAME} pcre2-posix)

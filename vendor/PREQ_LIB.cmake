@@ -78,6 +78,9 @@ macro(PREQ_LIB lib)
        ${LIBUPR}_LIBRARY ${LIBUPR}_INCLUDE_DIR)
     message(STATUS "-------------------------------------------------")
 
+    get_all_cmake_targets(_all_cmake_targets ${${LIBUPR}_DIRECTORY})
+    set_target_properties(${_all_cmake_targets} PROPERTIES FOLDER ${lib})
+
     if(NOT PROJECT_IS_TOP_LEVEL)
         #[[
         使 LIB_DIRECTORY, LIB_BUILD_DIRCTORY,LIB_STATIC, LIB_SHARED 等在全局可用
@@ -123,7 +126,7 @@ else()
     set(ZLIB_LIBRARY zlib)
 endif()
 set(ZLIB_INCLUDE_DIR ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY})
-
+group_sources_under(zlib)
 # # ======================================
 # # libpng (requiring zlib)
 # set(LIBPNG_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/libpng")
@@ -154,9 +157,14 @@ set(ZLIB_INCLUDE_DIR ${ZLIB_DIRECTORY} ${ZLIB_BUILD_DIRECTORY})
 # openjpeg
 set(ENABLE_LIB_ONLY 1)
 PREQ_LIB(bzip2)
-set(BZIP2_LIBRARY "bz2")
+PREQ_LIB(brotli)
+set(BZIP2_LIBRARYIES "bz2")
 unset(ENABLE_LIB_ONLY)
-# PREQ_LIB(libjpeg-turbo)
+PREQ_LIB(Imath)
+PREQ_LIB(libgif)
+# PREQ_LIB(libxml2)
+
+# PREQ_LIB(libpng)
 # PREQ_LIB(libtiff)
 # set(TIFF_LIBRARY libtiff)
 # set(TIFF_INCLUDE_DIR ${LIBTIFF_DIRECTORY}/libtiff)
