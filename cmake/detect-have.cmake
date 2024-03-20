@@ -407,4 +407,21 @@ elseif(HAVE_SYS_SYSMACROS_H)
 endif()
 
 
+check_c_source_compiles(
+"
+void f()
+{
+    char x[ (char)0xff ]; /* x[-1] if signed */
+}
+"
+CHAR_IS_UNSIGNED)
+
+check_c_source_compiles(
+"
+void f()
+{
+    char x[ ((signed char)0xff) >> 1 ]; /* x[-1] if signed */
+}
+"
+RIGHT_SHIFT_IS_UNSIGNED)
 

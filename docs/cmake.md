@@ -30,5 +30,19 @@ get_property(<variable>
 ```
 是更generic的获取属性的方式。
 
-### set_property
-set_property()
+
+## Cheat Sheet
+```shell
+# 以下4种相等
+target_compile_definitions(foo PUBLIC FOO)
+target_compile_definitions(foo PUBLIC -DFOO)  # -D removed
+target_compile_definitions(foo PUBLIC "" FOO) # "" ignored
+target_compile_definitions(foo PUBLIC -D FOO) # -D becomes "", then ignored
+
+# 定义FOO=1
+target_compile_definitions(foo PUBLIC FOO=1)
+
+```
+
+
+

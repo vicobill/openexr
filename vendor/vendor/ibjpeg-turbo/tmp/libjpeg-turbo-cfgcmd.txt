@@ -1,0 +1,1 @@
+cmd='cd D:/project/UniNative/uni-native/vendor/vendor/libjpeg-turbo && cmake -DCMAKE_INSTALL_PREFIX=D:/project/UniNative/uni-native/vendor/vendor/libjpeg-turbo/ .'
