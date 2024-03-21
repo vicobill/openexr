@@ -42,19 +42,13 @@ PREQ_LIB(lib [libdir])
 #]]
 macro(PREQ_LIB lib)
     string(TOUPPER ${lib} LIBUPR)
-    # message(STATUS "C: ${ARGC}")
-    # message(STATUS "0: ${ARGV0}")
-    # message(STATUS "1: ${ARGV1}")
-    # message(STATUS "2: ${ARGV2}")
     if (${ARGC} GREATER 1)
         set(libdir ${ARGV1})
-        # message(STATUS "xxxxxxxxx1xxxxxxxxx ${libdir}")
     else()
         set(libdir ${lib})
-        # message(STATUS "xxxxxxxxx2xxxxxxxxx ${libdir}")
     endif()
     set(${LIBUPR}_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${libdir}")
-
+    message(STATUS ">>>>>>>>>>>>>>> Process PREQ_LIB ${lib} on dir ${libdir} >>>>>>>>>>>>>>>")
     add_subdirectory(${${LIBUPR}_DIRECTORY})
     # 获取DIRECTORY作用域的一个属性
     # 从对应目录下，获取 CMAKE_CURRENT_BINARY_DIR 变量定义，保存为 XXX_BUILD_DIRECTORY
@@ -75,6 +69,14 @@ macro(PREQ_LIB lib)
             set(${LIBUPR}_STATIC ${lib}static)
         elseif(TARGET ${lib})
             set(${LIBUPR}_STATIC ${lib})
+        elseif (TARGET lib${lib}_static)
+            set(${LIBUPR}_STATIC lib${lib}_static)
+        elseif(TARGET lib${lib}-static)
+            set(${LIBUPR}_STATIC lib${lib}-static)
+        elseif(TARGET lib${lib}static)
+            set(${LIBUPR}_STATIC lib${lib}static)
+        elseif(TARGET lib${lib})
+            set(${LIBUPR}_STATIC lib${lib})
         endif()
     endif()
 
@@ -87,24 +89,28 @@ macro(PREQ_LIB lib)
             set(${LIBUPR}_SHARED ${lib}_shared)
         elseif(TARGET ${lib})
             set(${LIBUPR}_SHARED ${lib})
+        elseif(TARGET lib${lib}_shared)
+            set(${LIBUPR}_SHARED lib${lib}_shared)
+        elseif(TARGET lib${lib})
+            set(${LIBUPR}_SHARED lib${lib})
         endif()
     endif()
 
 
 
     # 设置 find_package 通常设定的属性
-    set(${LIBUPR}_INCLUDE_DIRS ${${LIBUPR}_DIRECTORY} ${${LIBUPR}_BUILD_DIRECTORY})
-    set(${LIBUPR}_INCLUDE_DIR ${${LIBUPR}_DIRECTORY} )
-    set(${LIBUPR}_LIBRARIES ${${LIBUPR}_STATIC} ${lib})
-    set(${LIBUPR}_LIBRARY ${${LIBUPR}_STATIC})
-    set(${LIBUPR}_LIBNAME ${${LIBUPR}_LIBRARY})
+    set(${LIBUPR}_INCLUDE_DIRS  ${${LIBUPR}_DIRECTORY} ${${LIBUPR}_BUILD_DIRECTORY})
+    set(${LIBUPR}_INCLUDE_DIR   ${${LIBUPR}_DIRECTORY})
+    set(${LIBUPR}_LIBRARIES     ${${LIBUPR}_STATIC} ${${LIBUPR}_SHARED})
+    set(${LIBUPR}_LIBRARY       ${${LIBUPR}_STATIC})
+    set(${LIBUPR}_LIBNAME       ${${LIBUPR}_LIBRARY})
 
-    message(STATUS "\n-------------------------------------------------")
+    message(STATUS "-------------------------------------------------")
     cmake_print_variables(${LIBUPR}_DIRECTORY  ${LIBUPR}_BUILD_DIRECTORY
        ${lib} ${LIBUPR}_STATIC ${LIBUPR}_SHARED ${LIBUPR}_LIBNAME_STATIC ${LIBUPR}_LIBNAME
        ${LIBUPR}_LIBRARIES ${LIBUPR}_INCLUDE_DIRS ${LIBUPR}_LIBRARY ${LIBUPR}_INCLUDE_DIR
        )
-    message(STATUS "-------------------------------------------------\n")
+    message(STATUS "-------------------------------------------------")
 
     get_all_cmake_targets(_all_cmake_targets ${${LIBUPR}_DIRECTORY})
     set_target_properties(${_all_cmake_targets} PROPERTIES FOLDER ${lib})
@@ -118,6 +124,13 @@ macro(PREQ_LIB lib)
             # message(STATUS "=============\n${_target_type} ${_is_library} add ${LIBUPR}::${_target} target alias to ${_target}\n=================")
         endif()
     endforeach()
+
+    # HACK
+    set(${LIBUPR}::${LIBUPR} ${${LIBUPR}_LIBRARY})
+
+    message(STATUS "====================================================")
+    cmake_print_variables(_all_cmake_targets ${LIBUPR}::${LIBUPR})
+    message(STATUS "==================================================")
 
 
     if(NOT PROJECT_IS_TOP_LEVEL)
@@ -137,6 +150,7 @@ macro(PREQ_LIB lib)
             list(APPEND DEPS_INCLUDE_DIRECTORIES ${${LIBUPR}_DIRECTORY} ${${LIBUPR}_BUILD_DIRECTORY})
         endif()
     endif()
+
 endmacro(PREQ_LIB)
 
 # ============================================================================= #
@@ -144,7 +158,7 @@ endmacro(PREQ_LIB)
 PREQ_LIB(zlib zlib)
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib)
 # FIXED error about: link zlib.obj ，主要是缺少ALIAS设定
-add_library(ZLIB::ZLIB ALIAS zlibstatic)
+set(ZLIB_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})
 
 PREQ_LIB(brotli)
 
@@ -171,21 +185,25 @@ group_sources_under(libpng)
 
 
 include(./build-jpeg.cmake)
-set(JPEG_LIBRARY jpeg_static)
-set(JPEG_LIBNAME ${JPEG_LIBRARY})
-set(JPEG::JPEG $<TARGET:${JPEG_LIBRARY}>)
-
 
 PREQ_LIB(Deflate libdeflate)
 set(Deflate_LIBRARY libdeflate_static)
+set(Deflate_INCLUDE_DIR ${DEFLATE_INCLUDE_DIR})
 set(Deflate_INCLUDE_DIRS ${DEFLATE_INCLUDE_DIRS})
+
+set(libdeflate_FOUND ON)
+set(libdeflate::libdeflate_static libdeflate_static)
+# set(libdeflate::libdeflate_shared libdeflate_shared)
+set(libdeflate_INCLUDE_DIR ${DEFLATE_INCLUDE_DIR})
 
 PREQ_LIB(de265 libde265)
 set(LIBDE265_LIBRARY de265)
 set(LIBDE265_INCLUDE_DIR ${DE265_INCLUDE_DIR})
 
 # include_directories(BEFORE ${DEPS_INCLUDE_DIRECTORIES})
-PREQ_LIB(WebP libwebp)
+PREQ_LIB(webp libwebp)
+set(WebP_LIBRARY ${WEBP_LIBRARY})
+set(WebP_INCLUDE_DIR ${WEBP_INCLUDE_DIR})
 
 
 # set(AOM_TARGET_CPU "generic")
@@ -206,6 +224,7 @@ set(TIFF_LIBRARIES tiff)
 set(TIFF_LIBNAME ${TIFF_LIBRARY})
 set(TIFF_INCLUDE_DIRS ${TIFF_DIRECTORY}/libtiff ${TIFF_BUILD_DIRECTORY} ${TIFF_BUILD_DIRECTORY}/libtiff)
 
+
 include(./build-LCMS2.cmake)
 set(LCMS2_LIBRARY LCMS2)
 set(LCMS2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/LCMS2/include)
@@ -213,7 +232,6 @@ set(LCMS2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/LCMS2/include)
 
 
 set(BUILD_THIRDPARTY OFF)
-set(LCMS2_INCLUDE_DIR)
 add_subdirectory(openjpeg)
 group_sources_under(openjpeg)
 # add_dependencies(openjp2 tiff)

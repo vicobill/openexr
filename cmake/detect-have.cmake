@@ -541,13 +541,13 @@ CHECK_CXX_SOURCE_COMPILES (
 "
 HAVE_STD_LIBS)
 
-# Check if `#' stringizing operator is supported
-CHECK_C_SOURCE_RUNS(
-"
-  #define x(y) #y
-  int main() { char c[] = \"c\"; char* p = x(c); return (c[0] != p[0]) || (c[1] != p[1]); }
-"
-HAVE_STRINGIZE)
+# # Check if `#' stringizing operator is supported
+# CHECK_C_SOURCE_RUNS(
+# "
+#   #define x(y) #y
+#   int main() { char c[] = \"c\"; char* p = x(c); return (c[0] != p[0]) || (c[1] != p[1]); }
+# "
+# HAVE_STRINGIZE)
 
 # Check if `fork' works
 IF(HAVE_FORK)
