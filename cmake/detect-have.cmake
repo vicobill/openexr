@@ -425,3 +425,382 @@ void f()
 "
 RIGHT_SHIFT_IS_UNSIGNED)
 
+# Check if `double_t' exists
+CHECK_C_SOURCE_COMPILES (
+"
+  #include <math.h>
+  void main () {double_t d = 0;}
+"
+HAVE_DOUBLE_T)
+
+# Check if `float_t' exists
+CHECK_C_SOURCE_COMPILES (
+"
+  #include <math.h>
+  void main () {float_t f = 0;}
+"
+HAVE_FLOAT_T)
+
+# Check if `intmax_t' exists
+CHECK_TYPE_SIZE (intmax_t INTMAX_T)
+IF(HAVE_INTMAX_T) # it was TRUE and we need it to be 1
+  SET(HAVE_INTMAX_T 1)
+ENDIF()
+
+# Check if `intptr_t' exists
+CHECK_TYPE_SIZE (intptr_t INTPTR_T)
+IF(HAVE_INTPTR_T ) # it was TRUE and we need it to be 1
+  SET(HAVE_INTPTR_T 1)
+ENDIF()
+# Check if `uintmax_t' exists
+CHECK_TYPE_SIZE(uintmax_t UINTMAX_T)
+IF(HAVE_UINTMAX_T) # it was TRUE and we need it to be 1
+  SET(HAVE_UINTMAX_T 1)
+ENDIF()
+
+# Check if `uintptr_t' exists
+CHECK_TYPE_SIZE(uintptr_t UINTPTR_T)
+IF(HAVE_UINTPTR_T) # it was TRUE and we need it to be 1
+  SET(HAVE_UINTPTR_T 1)
+ENDIF()
+# Check if `long double' exists
+CHECK_TYPE_SIZE("long double" LONG_DOUBLE)
+IF(HAVE_LONG_DOUBLE) # it was TRUE and we need it to be 1
+  SET(HAVE_LONG_DOUBLE 1)
+ENDIF()
+
+# Check if `long double' have more precision than `double'
+IF(HAVE_LONG_DOUBLE)
+  CHECK_TYPE_SIZE(double DOUBLE)
+  IF (${LONG_DOUBLE} GREATER ${DOUBLE})
+    SET(HAVE_LONG_DOUBLE_WIDER 1)
+  ENDIF()
+ENDIF()
+
+# Check `double' size
+CHECK_TYPE_SIZE(double SIZEOF_DOUBLE)
+
+# Check if `long long int' exists
+CHECK_TYPE_SIZE("long long int" LONG_LONG_INT)
+IF(HAVE_LONG_LONG_INT) # it was TRUE and we need it to be 1
+  SET(HAVE_LONG_LONG_INT 1)
+ENDIF()
+# Check if `unsigned long long int' exists
+CHECK_TYPE_SIZE("unsigned long long int" UNSIGNED_LONG_LONG_INT)
+IF(HAVE_UNSIGNED_LONG_LONG_INT) # it was TRUE and we need it to be 1
+  SET(HAVE_UNSIGNED_LONG_LONG_INT 1)
+ENDIF()
+# Check if `namespace' exists
+CHECK_CXX_SOURCE_COMPILES (
+  "namespace test {} void main() {using namespace ::test;}"
+  HAVE_NAMESPACES)
+
+# Check if `std::' exists
+CHECK_CXX_SOURCE_COMPILES (
+"
+  #include <iostream>
+  void main() {std::istream& is = std::cin;}
+"
+HAVE_NAMESPACE_STD)
+
+# Check if POSIX threads library, header and symbols exists
+CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
+IF(HAVE_PTHREAD_H)
+  CHECK_LIBRARY_EXISTS(pthread pthread_create "" HAVE_PTHREAD)
+  CHECK_SYMBOL_EXISTS(PTHREAD_PRIO_INHERIT pthread.h HAVE_PTHREAD_PRIO_INHERIT)
+ENDIF()
+
+# Check supported X11 extensions
+FIND_PACKAGE(X11)
+IF(X11_Xshape_FOUND)
+  SET(HAVE_SHAPE 1)
+ENDIF()
+IF(X11_XShm_FOUND)
+  SET(HAVE_SHARED_MEMORY 1)
+ENDIF()
+
+# Check if <stdbool.h> exists and conforms to C99
+CHECK_C_SOURCE_COMPILES (
+"
+  #include <stdbool.h>
+  void main() {bool b = __bool_true_false_are_defined;}
+"
+HAVE_STDBOOL_H)
+
+# Check if compiler supports ISO C++ standard library
+CHECK_CXX_SOURCE_COMPILES (
+"
+  #include <map>
+  #include <iomanip>
+  #include <cmath>
+  #ifdef HAVE_NAMESPACES
+    using namespace std;
+  #endif
+
+  void main() {}
+"
+HAVE_STD_LIBS)
+
+# Check if `#' stringizing operator is supported
+CHECK_C_SOURCE_RUNS(
+"
+  #define x(y) #y
+  int main() { char c[] = \"c\"; char* p = x(c); return (c[0] != p[0]) || (c[1] != p[1]); }
+"
+HAVE_STRINGIZE)
+
+# Check if `fork' works
+IF(HAVE_FORK)
+  CHECK_CXX_SOURCE_RUNS(
+  "
+    #ifdef HAVE_SYS_TYPES_H
+	  #include <sys/types.h>
+	#endif
+	#ifdef HAVE_UNISTD_H
+	  #include <unistd.h>
+	#endif
+    int main() { if (fork() < 0) return(1); return(0); }
+  "
+  HAVE_WORKING_FORK)
+ENDIF()
+
+# Check if `vfork' works
+IF(HAVE_VFORK)
+  CHECK_CXX_SOURCE_RUNS(
+  "
+    #ifdef HAVE_SYS_TYPES_H
+	  #include <sys/types.h>
+	#endif
+	#ifdef HAVE_UNISTD_H
+	  #include <unistd.h>
+	#endif
+	#ifdef HAVE_VFORK_H
+	  #include <vfork.h>
+	#endif
+    int main() { if (vfork() < 0) return(1); return(0); }
+  "
+  HAVE_WORKING_VFORK)
+ENDIF()
+
+# Check if `_Bool' exists
+CHECK_TYPE_SIZE(_Bool _BOOL)
+IF(HAVE__BOOL) # it was TRUE and we need it to be 1
+  SET(HAVE__BOOL 1)
+ENDIF()
+
+# Check if `__attribute__' exists
+CHECK_C_SOURCE_COMPILES(
+"
+  #include <stdlib.h>
+  static void foo(void) __attribute__ ((unused));
+  void main() { }
+"
+HAVE___ATTRIBUTE__)
+
+# Check return type of signal handlers
+CHECK_C_SOURCE_COMPILES(
+"
+  #include <signal.h>
+  #ifdef signal
+    #undef signal
+  #endif
+  #ifdef __cplusplus
+  extern \"C\" void (*signal (int, void (*)(int)))(int);
+  #else
+  void (*signal ()) ();
+  #endif
+  void main() {}
+"
+SIGNAL_RETURN_TYPE_IS_VOID)
+IF(SIGNAL_RETURN_TYPE_IS_VOID)
+  SET(RETSIGTYPE void)
+ELSE(SIGNAL_RETURN_TYPE_IS_VOID)
+  SET(RETSIGTYPE int)
+ENDIF(SIGNAL_RETURN_TYPE_IS_VOID)
+
+# Check `double_t' size
+IF(HAVE_DOUBLE_T)
+  CHECK_TYPE_SIZE(double_t SIZEOF_DOUBLE_T)
+ENDIF()
+
+# Check `float' size
+CHECK_TYPE_SIZE(float SIZEOF_FLOAT)
+
+# Check `float_t' size
+IF(HAVE_FLOAT_T)
+  CHECK_TYPE_SIZE(float_t SIZEOF_FLOAT_T)
+ENDIF()
+
+# Check `long double' size
+IF(HAVE_LONG_DOUBLE)
+  CHECK_TYPE_SIZE("long double" SIZEOF_LONG_DOUBLE)
+ENDIF()
+
+# Check `off_t' size
+CHECK_TYPE_SIZE(off_t SIZEOF_OFF_T)
+
+# Check `signed int' size
+CHECK_TYPE_SIZE("signed int" SIZEOF_SIGNED_INT)
+
+# Check `signed long' size
+CHECK_TYPE_SIZE("signed long" SIZEOF_SIGNED_LONG)
+
+# Check `signed long long' size
+CHECK_TYPE_SIZE("signed long long" SIZEOF_SIGNED_LONG_LONG)
+
+# Check `signed short' size
+CHECK_TYPE_SIZE("signed short" SIZEOF_SIGNED_SHORT)
+
+# Check `size_t' size
+CHECK_TYPE_SIZE("size_t" SIZEOF_SIZE_T)
+
+# Check `ssize_t' size
+CHECK_TYPE_SIZE("ssize_t" SIZEOF_SSIZE_T)
+
+# Check `unsigned int' size
+CHECK_TYPE_SIZE("unsigned int" SIZEOF_UNSIGNED_INT)
+
+# Check `unsigned int*' size
+CHECK_TYPE_SIZE("unsigned int*" SIZEOF_UNSIGNED_INTP)
+
+# Check `unsigned long' size
+CHECK_TYPE_SIZE("unsigned long" SIZEOF_UNSIGNED_LONG)
+
+# Check `unsigned long long' size
+CHECK_TYPE_SIZE("unsigned long long" SIZEOF_UNSIGNED_LONG_LONG)
+
+# Check `unsigned short' size
+CHECK_TYPE_SIZE("unsigned short" SIZEOF_UNSIGNED_SHORT)
+
+# Check strerror_r returns `char *'
+CHECK_CXX_SOURCE_COMPILES(
+"
+  void main()
+  {
+    char buf[100];
+    char x = *strerror_r(0, buf, sizeof buf);
+    char *p = strerror_r(0, buf, sizeof buf);
+  }
+"
+STRERROR_R_CHAR_P)
+
+# Check POSIX threads libraries and header files exists
+FIND_PACKAGE(Threads)
+IF(CMAKE_USE_PTHREADS_INIT)
+  SET(THREAD_SUPPORT TRUE)
+  SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  SET(THREADS_PREFER_PTHREAD_FLAG TRUE)
+ENDIF()
+
+# Check if we can safely include both <sys/time.h> and <time.h>
+CHECK_CXX_SOURCE_COMPILES(
+"
+  #include <sys/time.h>
+  #include <time.h>
+  void main(void){}
+"
+TIME_WITH_SYS_TIME)
+
+# Check for compiler `__func__' compatibility
+CHECK_C_SOURCE_COMPILES("void main() {char *function_name = __func__;}" HAVE___FUNC__)
+CHECK_C_SOURCE_COMPILES("void main() {char *function_name = __FUNCTION__;}" HAVE___FUNCTION__)
+
+IF(HAVE___FUNC__)
+  SET(__func__ __func__)
+ELSEIF(HAVE___FUNCTION__)
+  SET(__func__ __FUNCTION__)
+ELSE()
+  SET(__func__ "")
+ENDIF()
+# Check if `const' is supported by compiler
+CHECK_C_SOURCE_COMPILES("void main() {const char *s = \"Test\";}" HAVE_CONST)
+# Only set const to empty if it doesn't exist otherwise magick++ will not compile
+IF(NOT HAVE_CONST)
+  SET(const " ")
+ENDIF()
+
+# Check if <sys/types.h> doesn't define `gid_t'
+IF(HAVE_SYS_TYPES_H)
+  CHECK_SYMBOL_EXISTS(gid_t sys/types.h HAVE_GID_T)
+  IF(NOT HAVE_GID_T)
+    SET(gid_t int)
+  ENDIF()
+ENDIF()
+
+# Check for the compiler inline compatible instruction
+CHECK_C_SOURCE_COMPILES(
+  "static inline int test (void) {return 0;}\nint main (void) {return test();}"
+  HAVE_INLINE)
+
+CHECK_C_SOURCE_COMPILES (
+  "static __inline int test (void) {return 0;}\nint main (void) {return test();}"
+  HAVE___INLINE)
+
+CHECK_C_SOURCE_COMPILES (
+  "static __inline__ int test (void) {return 0;}\nint main (void) {return test();}"
+  HAVE___INLINE__)
+
+IF(HAVE_INLINE)
+	SET(inline inline)
+ELSEIF(HAVE___INLINE)
+	SET(inline __inline)
+ELSEIF(HAVE___INLINE__)
+	SET(inline __inline__)
+ELSE()
+	SET(inline "")
+ENDIF()
+# Check for the compiler restrict compatible instruction
+CHECK_C_SOURCE_COMPILES(
+  "int test (void *restrict x);\nint main (void) {return 0;}"
+  HAVE_RESTRICT)
+
+CHECK_C_SOURCE_COMPILES(
+"typedef struct abc *d;\nint test (d __restrict x);\nint main (void) {return 0;}"
+  HAVE___RESTRICT)
+
+IF(HAVE___RESTRICT)
+  SET(restrict __restrict)
+ELSEIF(NOT HAVE_RESTRICT)
+  SET(restrict " ")
+ENDIF()
+
+# Check if <sys/types.h> doesn't define `ssize_t'
+IF(HAVE_SYS_TYPES_H)
+  IF(SIZEOF_SSIZE_T)
+    SET(HAVE_SSIZE_T 1)
+  ELSE()
+    CHECK_SYMBOL_EXISTS(ssize_t sys/types.h HAVE_SSIZE_T)
+    IF(NOT HAVE_SSIZE_T)
+      SET(ssize_t int)
+	  # if we do this let's also do this
+	  CHECK_TYPE_SIZE(int SIZEOF_INT)
+	  SET(SIZEOF_SSIZE_T ${SIZEOF_INT})
+	ENDIF()
+  ENDIF()
+ENDIF()
+
+# Check if <sys/types.h> doesn't define `uid_t'
+IF(HAVE_SYS_TYPES_H)
+  CHECK_SYMBOL_EXISTS(uid_t sys/types.h HAVE_UID_T)
+  IF(NOT HAVE_UID_T)
+    SET(uid_t int)
+  ENDIF()
+ENDIF()
+
+# Check if `vfork' is not working and define it as `fork'
+IF(NOT HAVE_WORKING_VFORK)
+  SET(vfork fork)
+ENDIF()
+
+# Check if `volatile' works
+CHECK_CXX_SOURCE_COMPILES(
+"
+void main() { volatile int i = 1; }
+"
+HAVE_VOLATILE)
+
+IF(HAVE_VOLATILE)
+  SET(volatile volatile)
+ELSE()
+  SET(volatile "")
+ENDIF()

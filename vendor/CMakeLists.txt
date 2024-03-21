@@ -2,6 +2,8 @@
 # (zlib doesn't export; libpng wants to; in this case we don't care).
 set(SKIP_INSTALL_EXPORT TRUE)
 
+cmake_policy(SET CMP0111 NEW)
+
 # If this is built standalone, and not part of an embedded project,
 # define the build directory.
 
@@ -95,15 +97,28 @@ macro(PREQ_LIB lib)
     set(${LIBUPR}_INCLUDE_DIR ${${LIBUPR}_DIRECTORY} )
     set(${LIBUPR}_LIBRARIES ${${LIBUPR}_STATIC} ${lib})
     set(${LIBUPR}_LIBRARY ${${LIBUPR}_STATIC})
+    set(${LIBUPR}_LIBNAME ${${LIBUPR}_LIBRARY})
 
-    message(STATUS "-------------------------------------------------")
+    message(STATUS "\n-------------------------------------------------")
     cmake_print_variables(${LIBUPR}_DIRECTORY  ${LIBUPR}_BUILD_DIRECTORY
        ${lib} ${LIBUPR}_STATIC ${LIBUPR}_SHARED ${LIBUPR}_LIBNAME_STATIC ${LIBUPR}_LIBNAME
-       ${LIBUPR}_LIBRARIES ${LIBUPR}_INCLUDE_DIRS ${LIBUPR}_LIBRARY ${LIBUPR}_INCLUDE_DIR)
-    message(STATUS "-------------------------------------------------")
+       ${LIBUPR}_LIBRARIES ${LIBUPR}_INCLUDE_DIRS ${LIBUPR}_LIBRARY ${LIBUPR}_INCLUDE_DIR
+       )
+    message(STATUS "-------------------------------------------------\n")
 
     get_all_cmake_targets(_all_cmake_targets ${${LIBUPR}_DIRECTORY})
     set_target_properties(${_all_cmake_targets} PROPERTIES FOLDER ${lib})
+
+    # 添加 ALIAS targets
+    foreach(_target ${_all_cmake_targets})
+        get_target_property(_target_type ${_target} TYPE)
+        string(FIND ${_target_type} "_LIBRARY" _is_library)
+        if(${_is_library} GREATER 0)
+            add_library(${LIBUPR}::${_target} ALIAS ${_target})
+            # message(STATUS "=============\n${_target_type} ${_is_library} add ${LIBUPR}::${_target} target alias to ${_target}\n=================")
+        endif()
+    endforeach()
+
 
     if(NOT PROJECT_IS_TOP_LEVEL)
         #[[
@@ -149,6 +164,7 @@ set(PNG_SHARED OFF)
 set(PNG_TOOLS OFF)
 PREQ_LIB(png libpng)
 set(PNG_LIBRARY png_static)
+set(PNG_LIBNAME ${PNG_LIBRARY})
 set(PNG::PNG $<TARGET:${PNG_LIBRARY}>)
 set(PNG_PNG_INCLUDE_DIR ${PNG_INCLUDE_DIR})
 group_sources_under(libpng)
@@ -156,6 +172,7 @@ group_sources_under(libpng)
 
 include(./build-jpeg.cmake)
 set(JPEG_LIBRARY jpeg_static)
+set(JPEG_LIBNAME ${JPEG_LIBRARY})
 set(JPEG::JPEG $<TARGET:${JPEG_LIBRARY}>)
 
 
@@ -167,7 +184,9 @@ PREQ_LIB(de265 libde265)
 set(LIBDE265_LIBRARY de265)
 set(LIBDE265_INCLUDE_DIR ${DE265_INCLUDE_DIR})
 
+# include_directories(BEFORE ${DEPS_INCLUDE_DIRECTORIES})
 PREQ_LIB(WebP libwebp)
+
 
 # set(AOM_TARGET_CPU "generic")
 # PREQ_LIB(libaom) # preq Perl
@@ -184,8 +203,8 @@ set(tiff-contrib OFF)
 set(tiff-docs OFF)
 PREQ_LIB(tiff libtiff)
 set(TIFF_LIBRARIES tiff)
-set(TIFF_LIBNAME tiff)
-set(TIFF_INCLUDE_DIRS ${TIFF_DIRECTORY}/libtiff ${TIFF_BUILD_DIRECTORY})
+set(TIFF_LIBNAME ${TIFF_LIBRARY})
+set(TIFF_INCLUDE_DIRS ${TIFF_DIRECTORY}/libtiff ${TIFF_BUILD_DIRECTORY} ${TIFF_BUILD_DIRECTORY}/libtiff)
 
 include(./build-LCMS2.cmake)
 set(LCMS2_LIBRARY LCMS2)
@@ -197,6 +216,7 @@ set(BUILD_THIRDPARTY OFF)
 set(LCMS2_INCLUDE_DIR)
 add_subdirectory(openjpeg)
 group_sources_under(openjpeg)
+# add_dependencies(openjp2 tiff)
 
 PREQ_LIB(OpenEXR openexr)
 
