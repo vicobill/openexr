@@ -9,8 +9,14 @@ cmake_print_variables(LCMS2_INCLUDE_DIR)
 
 add_library(LCMS2 ${LCMS2_SOURCES})
 target_include_directories(LCMS2 PUBLIC ${LCMS2_INCLUDE_DIR})
-set(LCMS2_LIBRARY LCMS2 )
+set(LCMS2_LIBRARY LCMS2)
+set(LCMS2_LIBRARIES LCMS2)
 set(LCMS2_INCLUDE_DIRS   ${LCMS2_INCLUDE_DIR} ${LCMS2_BUILD_DIRECTORY} )
+
+set(lcms2_INCLUDE_DIR ${LCMS2_INCLUDE_DIR})
+set(lcms2_INCLUDE_DIRS ${LCMS2_INCLUDE_DIRS})
+set(lcms2_LIBRARY ${LCMS2_LIBRARY})
+set(lcms2_LIBRARY ${LCMS2_LIBRARIES})
 
 
 message(STATUS "------------------ END build-lcms2 -------------------")

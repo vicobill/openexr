@@ -40,5 +40,6 @@ enable_testing()
 PREQ_LIB(jpeg libjpeg)
 set(JPEG_LIBRARY ${JPEG_LIBRARY})
 add_library(JPEG::JPEG ALIAS ${JPEG_LIBRARY})
+set(JPEG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libjpeg)
 
 message(STATUS "<<<<<<<<<<<<<<<<<<<<< END build-jpeg.cmake <<<<<<<<<<<<<<<<<")
